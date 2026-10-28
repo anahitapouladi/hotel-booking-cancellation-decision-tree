@@ -1,201 +1,53 @@
-# Project Documentation
+# Validation notes
 
-# Hotel Booking Cancellation Prediction with Explainable Machine Learning
+These notes document how the numbers in the README and `docs/run_metrics.json` relate to the notebook outputs, and what has not been verified.
 
-## 1. Introduction
+## Source of the reported results
 
-This document provides technical documentation for the project.
+All results come from the saved outputs of the last completed run of `notebooks/Hotel_Booking_Cancellation_Prediction_Decision_Tree.ipynb`.
 
-The goal is to build a machine learning classification pipeline that
-predicts hotel booking cancellations using information available at the
-booking stage.
+- `docs/run_metrics.json` is a **static snapshot** copied from those saved outputs. The notebook does not create or update it.
+- The nine figures in `images/` are the images displayed in the notebook's saved outputs. They may have a lower resolution than the files the notebook writes when it is rerun (`save_figure` uses 170 DPI).
+- Package versions and the SHA-256 of the raw CSV were not recorded in the saved outputs, so they are not included in the snapshot.
 
-Main objectives:
+If you rerun the notebook and publish new results, update the README, the figures, and the snapshot together. Different package versions can also change the grouped split and the selected model.
 
--   Build a reliable ML workflow
--   Prevent data leakage
--   Evaluate model generalization
--   Maintain model interpretability
+## Reported run
 
-------------------------------------------------------------------------
+- Input: **119,390 rows × 32 columns**; **31,994 exact duplicate rows**.
+- Repeated retained-predictor rows: **33,534**.
+- Group-aware split: **95,648 training rows** and **23,742 held-out test rows**, with **0 shared predictor groups**.
+- Cancellation rate: about **37.4%** in training and **35.6%** in test. Stratification across groups is approximate.
+- Grouped CV: **32 candidates × 5 folds = 160 fits**; best mean F1 **0.7948** (fold SD **0.0054**).
+- Selected parameters: `class_weight="balanced"`, `criterion="gini"`, `max_depth=12`, `min_samples_split=10`, `min_samples_leaf=10`, `ccp_alpha=0.0` (fixed).
 
-## 2. Problem Definition
+## Held-out results
 
-Problem type:
+| Metric | Unrestricted tree | CV-tuned tree |
+|---|---:|---:|
+| Accuracy | 0.8342 | 0.8465 |
+| Precision (Cancelled) | 0.7715 | 0.7708 |
+| Recall (Cancelled) | 0.7590 | 0.8096 |
+| F1 (Cancelled) | 0.7652 | 0.7897 |
+| Confusion matrix (TN, FP, FN, TP) | 13,391; 1,900; 2,037; 6,414 | 13,256; 2,035; 1,609; 6,842 |
+| Depth / leaves | 49 / 9,823 | 12 / 373 |
 
-Binary classification
+- F1 difference: **+0.0245**; paired group-bootstrap 95% interval (2,000 resamples): **[+0.0141, +0.0346]**.
+- Error trade-off: **135 more false alerts** and **428 fewer missed cancellations**.
 
-Target:
+## Consistency checks
 
-`is_canceled`
+- The confusion-matrix counts reproduce the reported precision, recall, accuracy, and F1 for both trees.
+- The README, this report, and the JSON snapshot all use the same 23,742-row held-out run.
+- The notebook's Python code parses without syntax errors. The raw CSV is not included in this repository, so these notes do not claim a fresh end-to-end rerun.
 
-Classes:
+## Interpretation boundaries
 
--   0: Reservation not cancelled
--   1: Reservation cancelled
+- The held-out fold was not used for tuning.
+- Grouping avoids exact predictor-pattern overlap, but it does not show that guests or bookings are independent.
+- The bootstrap interval is conditional on this held-out split and the fitted models. It does not cover future periods or other hotels.
+- Features that can change during the booking lifecycle need a defined prediction time before any operational use.
 
-The model is designed as a pre-arrival risk prediction system.
+## Figure files
 
-------------------------------------------------------------------------
-
-## 3. Dataset
-
-Dataset size:
-
--   Rows: 119,390
--   Features: 32 original columns
-
-The dataset includes reservation information such as:
-
--   Lead time
--   Deposit type
--   Customer information
--   Stay duration
--   Booking behavior
--   Special requests
-
-------------------------------------------------------------------------
-
-## 4. Data Quality Processing
-
-## Duplicate Records
-
-The dataset contains 31,994 exact duplicate rows.
-
-Duplicates were not automatically removed because no reliable unique
-booking identifier exists.
-
-------------------------------------------------------------------------
-
-## Missing Values
-
-`company` was removed because of extremely high missingness.
-
-`agent` was retained and treated as a categorical feature.
-
-Remaining missing values were handled inside the preprocessing pipeline.
-
-------------------------------------------------------------------------
-
-## 5. Leakage Prevention
-
-Removed outcome leakage:
-
--   `reservation_status`
--   `reservation_status_date`
-
-Removed timing-sensitive feature:
-
--   `assigned_room_type`
-
-This ensures predictions are based only on information available before
-cancellation.
-
-------------------------------------------------------------------------
-
-## 6. Feature Engineering
-
-Created features:
-
--   Total nights
--   Total guests
-
-Additional validation:
-
--   Zero guest records
--   Zero night stays
-
-------------------------------------------------------------------------
-
-## 7. Modeling
-
-Baseline Decision Tree:
-
-  Metric         Score
-  ----------- --------
-  Accuracy      0.8606
-  Precision     0.8144
-  Recall        0.8078
-  F1 Score      0.8111
-
-The baseline model showed strong performance but significant
-overfitting.
-
-------------------------------------------------------------------------
-
-## 8. Hyperparameter Optimization
-
-GridSearchCV optimized F1 score.
-
-Best parameters:
-
-    criterion = gini
-    max_depth = 12
-    min_samples_leaf = 5
-    min_samples_split = 25
-    class_weight = None
-    ccp_alpha = 0.0
-
-------------------------------------------------------------------------
-
-## 9. Generalization Analysis
-
-Baseline:
-
--   Train F1: 0.9944
--   Test F1: 0.8111
--   Gap: 0.1833
-
-Tuned:
-
--   Train F1: 0.8158
--   Test F1: 0.8023
--   Gap: 0.0135
-
-The tuned model reduced overfitting and improved stability.
-
-------------------------------------------------------------------------
-
-## 10. Explainability
-
-Top model features:
-
-1.  deposit_type_Non Refund
-2.  agent_9
-3.  total_of_special_requests
-4.  lead_time
-5.  country_PRT
-
-Feature importance represents model behavior, not causal impact.
-
-------------------------------------------------------------------------
-
-## 11. Limitations
-
--   Duplicate handling remains a data-quality question.
--   Decision Trees may not capture all complex patterns.
--   Feature importance is not causal analysis.
-
-------------------------------------------------------------------------
-
-## 12. Future Improvements
-
-Possible extensions:
-
--   Random Forest and Gradient Boosting comparison
--   Probability calibration
--   Threshold optimization
--   Stability analysis
-
-------------------------------------------------------------------------
-
-## 13. Repository Structure
-
-    .
-    ├── README.md
-    ├── docs/
-    │   └── PROJECT_DOCUMENTATION.md
-    ├── notebooks/
-    │   └── Hotel_Booking_Cancellation_Prediction_Decision_Tree.ipynb
-    ├── requirements.txt
-    └── data/
+`baseline_confusion_matrix.png`, `cancellation_distribution.png`, `correlation_matrix.png`, `error_tradeoff.png`, `feature_importances.png`, `missing_values.png`, `train_test_f1_comparison.png`, `tuned_confusion_matrix.png`, `tuned_tree_depth_0_to_3.png` (all in `images/`).
