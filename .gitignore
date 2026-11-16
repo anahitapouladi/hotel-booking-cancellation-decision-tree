@@ -1,52 +1,52 @@
-Python
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 
-pycache/ .py[cod] $py.class
+# Virtual environments
+.venv/
+venv/
+env/
 
-Virtual environments
-
-.venv/ venv/ env/
-
-Jupyter Notebook
-
+# Jupyter notebooks
 .ipynb_checkpoints/
 
-IDE settings
+# IDE settings
+.vscode/
+.idea/
 
-.vscode/ .idea/
+# Operating-system files
+.DS_Store
+Thumbs.db
 
-Operating system files
-
-.DS_Store Thumbs.db
-
-Data files
-
-data/.csv data/.xlsx data/*.zip
-
-Keep data folder structure
-
-!data/.gitkeep
-
-Model artifacts
-
-models/ .pkl .joblib *.h5
-
-Logs
-
-logs/ *.log
-
-Temporary files
-
-.tmp .temp
-
-Environment files
-
-.env
-
-Build files
-
-dist/ build/ *.egg-info/
-
-Experiment outputs
-
-outputs/ reports/
+# Raw datasets (keep data/README.md)
 data/*.csv
+data/*.xlsx
+data/*.zip
+
+# Model artifacts
+models/
+*.pkl
+*.joblib
+*.h5
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Local environment files
+.env
+.env.*
+
+# Build files
+dist/
+build/
+*.egg-info/
+
+# Other experiment outputs
+outputs/
+reports/
