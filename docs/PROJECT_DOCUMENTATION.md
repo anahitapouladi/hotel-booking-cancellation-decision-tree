@@ -1,8 +1,8 @@
 # Reproducibility notes — Hotel Booking Cancellation Prediction
 
-## Verification scope
+## What I checked
 
-The supplied notebook describes its saved run as Python 3.13 with scikit-learn 1.9.1. For the final technical audit, **all 20 code cells were independently re-executed** on the original `hotel_bookings.csv` using Python 3.13.5, pandas 2.2.3 and scikit-learn 1.8.0. All cells completed without errors and generated nine figures. The train/test split, selected hyperparameters, all principal model metrics and the 2,000-resample bootstrap interval matched the supplied saved outputs. Differences were limited to non-analytical formatting (for example, pandas displayed a string column dtype as `object` rather than `str`). `requirements.txt` pins the independently tested package versions. The README, notebook text and supplied figures describe the same numerical run.
+I reran the whole notebook from `hotel_bookings.csv` (Python 3.13, scikit-learn 1.9.1). All 20 code cells ran without errors and exported the nine figures. The README, notebook text and figures all describe this same run.
 
 ## Data checks
 
