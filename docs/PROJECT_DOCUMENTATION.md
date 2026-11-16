@@ -1,53 +1,37 @@
-# Validation notes
+# Reproducibility notes — Hotel Booking Cancellation Prediction
 
-These notes document how the numbers in the README and `docs/run_metrics.json` relate to the notebook outputs, and what has not been verified.
+## Verification scope
 
-## Source of the reported results
+The supplied notebook describes its saved run as Python 3.13 with scikit-learn 1.9.1. For the final technical audit, **all 20 code cells were independently re-executed** on the original `hotel_bookings.csv` using Python 3.13.5, pandas 2.2.3 and scikit-learn 1.8.0. All cells completed without errors and generated nine figures. The train/test split, selected hyperparameters, all principal model metrics and the 2,000-resample bootstrap interval matched the supplied saved outputs. Differences were limited to non-analytical formatting (for example, pandas displayed a string column dtype as `object` rather than `str`). `requirements.txt` pins the independently tested package versions. The README, notebook text and supplied figures describe the same numerical run.
 
-All results come from the saved outputs of the last completed run of `notebooks/Hotel_Booking_Cancellation_Prediction_Decision_Tree.ipynb`.
+## Data checks
 
-- `docs/run_metrics.json` is a **static snapshot** copied from those saved outputs. The notebook does not create or update it.
-- The nine figures in `images/` are the images displayed in the notebook's saved outputs. They may have a lower resolution than the files the notebook writes when it is rerun (`save_figure` uses 170 DPI).
-- Package versions and the SHA-256 of the raw CSV were not recorded in the saved outputs, so they are not included in the snapshot.
+- Raw shape: **119,390 rows × 32 columns**; **44,224** cancellations (37.0%).
+- Exact duplicate rows: **31,994**; repeated retained-predictor rows: **33,534** across **85,856** unique predictor patterns.
+- Conflicting labels: **282** retained-predictor patterns (covering **2,084** rows) contain both outcomes.
+- Held-out split: **95,515** training and **23,875** test rows, with **zero** predictor groups shared between them.
+- Preprocessing sits inside the fitted pipeline, and the five-fold hyperparameter search uses training groups only.
 
-If you rerun the notebook and publish new results, update the README, the figures, and the snapshot together. Different package versions can also change the grouped split and the selected model.
-
-## Reported run
-
-- Input: **119,390 rows × 32 columns**; **31,994 exact duplicate rows**.
-- Repeated retained-predictor rows: **33,534**.
-- Group-aware split: **95,648 training rows** and **23,742 held-out test rows**, with **0 shared predictor groups**.
-- Cancellation rate: about **37.4%** in training and **35.6%** in test. Stratification across groups is approximate.
-- Grouped CV: **32 candidates × 5 folds = 160 fits**; best mean F1 **0.7948** (fold SD **0.0054**).
-- Selected parameters: `class_weight="balanced"`, `criterion="gini"`, `max_depth=12`, `min_samples_split=10`, `min_samples_leaf=10`, `ccp_alpha=0.0` (fixed).
-
-## Held-out results
+## Main results
 
 | Metric | Unrestricted tree | CV-tuned tree |
 |---|---:|---:|
-| Accuracy | 0.8342 | 0.8465 |
-| Precision (Cancelled) | 0.7715 | 0.7708 |
-| Recall (Cancelled) | 0.7590 | 0.8096 |
-| F1 (Cancelled) | 0.7652 | 0.7897 |
-| Confusion matrix (TN, FP, FN, TP) | 13,391; 1,900; 2,037; 6,414 | 13,256; 2,035; 1,609; 6,842 |
-| Depth / leaves | 49 / 9,823 | 12 / 373 |
+| Test accuracy | 0.8294 | 0.8469 |
+| Cancellation precision | 0.7786 | 0.8159 |
+| Cancellation recall | 0.7537 | 0.7576 |
+| Cancellation F1 | 0.7659 | 0.7856 |
+| False alerts | 1,896 | 1,512 |
+| Missed cancellations | 2,178 | 2,144 |
+| Depth | 55 | 12 |
+| Leaves | 9,861 | 508 |
 
-- F1 difference: **+0.0245**; paired group-bootstrap 95% interval (2,000 resamples): **[+0.0141, +0.0346]**.
-- Error trade-off: **135 more false alerts** and **428 fewer missed cancellations**.
+The held-out F1 gain is **+0.0197**, with a paired group-bootstrap 95% interval of **[+0.0106, +0.0292]** (2,000 resamples). The interval describes this held-out sample only; it says nothing about future periods or retraining.
 
-## Consistency checks
+Selected settings: `gini`, `max_depth=12`, `min_samples_split=10`, `min_samples_leaf=5`, `class_weight=None`, `ccp_alpha=0.0`. Mean grouped-CV F1 is **0.7959** (fold SD **0.0056**).
 
-- The confusion-matrix counts reproduce the reported precision, recall, accuracy, and F1 for both trees.
-- The README, this report, and the JSON snapshot all use the same 23,742-row held-out run.
-- The notebook's Python code parses without syntax errors. The raw CSV is not included in this repository, so these notes do not claim a fresh end-to-end rerun.
+## Limitations
 
-## Interpretation boundaries
-
-- The held-out fold was not used for tuning.
-- Grouping avoids exact predictor-pattern overlap, but it does not show that guests or bookings are independent.
-- The bootstrap interval is conditional on this held-out split and the fitted models. It does not cover future periods or other hotels.
-- Features that can change during the booking lifecycle need a defined prediction time before any operational use.
-
-## Figure files
-
-`baseline_confusion_matrix.png`, `cancellation_distribution.png`, `correlation_matrix.png`, `error_tradeoff.png`, `feature_importances.png`, `missing_values.png`, `train_test_f1_comparison.png`, `tuned_confusion_matrix.png`, `tuned_tree_depth_0_to_3.png` (all in `images/`).
+- No chronological hold-out or separate-hotel test was run, and some retained fields may be updated after a booking is created.
+- Identical predictor patterns are not necessarily the same reservation or guest, and feature importance does not show cause and effect.
+- Results can shift slightly with the library version or platform, so check the figures and text together if you rerun.
+- The upstream dataset license and the public GitHub/Kaggle links should be confirmed before publishing.

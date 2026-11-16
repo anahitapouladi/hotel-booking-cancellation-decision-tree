@@ -1,0 +1,81 @@
+{
+  "description": "Static snapshot of the notebook outputs; not updated by rerunning the notebook",
+  "dataset": {
+    "original_rows": 119390,
+    "original_columns": 32,
+    "cancellations": 44224,
+    "exact_duplicate_rows": 31994,
+    "unique_retained_predictor_patterns": 85856,
+    "repeated_retained_predictor_rows": 33534,
+    "conflicting_label_patterns": 282,
+    "rows_in_conflicting_patterns": 2084
+  },
+  "split": {
+    "method": "First held-out fold of StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)",
+    "train_rows": 95515,
+    "test_rows": 23875,
+    "train_cancellation_rate_rounded": 0.3704,
+    "test_cancellation_rate_rounded": 0.3704,
+    "shared_predictor_groups": 0
+  },
+  "search": {
+    "candidate_settings": 32,
+    "cv_folds": 5,
+    "fits": 160,
+    "best_mean_cv_f1_rounded": 0.7959,
+    "best_fold_sd_rounded": 0.0056,
+    "best_parameters": {
+      "criterion": "gini",
+      "max_depth": 12,
+      "min_samples_split": 10,
+      "min_samples_leaf": 5,
+      "class_weight": null,
+      "ccp_alpha": 0.0
+    }
+  },
+  "held_out_test": {
+    "unrestricted_tree": {
+      "accuracy": 0.8294,
+      "precision_cancelled": 0.7786,
+      "recall_cancelled": 0.7537,
+      "f1_cancelled": 0.7659,
+      "train_f1": 0.9939,
+      "train_test_f1_gap": 0.228,
+      "tn": 13135,
+      "fp": 1896,
+      "fn": 2178,
+      "tp": 6666,
+      "depth": 55,
+      "leaves": 9861
+    },
+    "cv_tuned_tree": {
+      "accuracy": 0.8469,
+      "precision_cancelled": 0.8159,
+      "recall_cancelled": 0.7576,
+      "f1_cancelled": 0.7856,
+      "train_f1": 0.8202,
+      "train_test_f1_gap": 0.0345,
+      "tn": 13519,
+      "fp": 1512,
+      "fn": 2144,
+      "tp": 6700,
+      "depth": 12,
+      "leaves": 508
+    }
+  },
+  "comparison": {
+    "held_out_f1_gain_rounded": 0.0197,
+    "additional_cancellations_caught": 34,
+    "fewer_false_alerts": 384,
+    "paired_group_bootstrap_95_percentile_interval_rounded": [
+      0.0106,
+      0.0292
+    ],
+    "bootstrap_resamples": 2000
+  },
+  "notes": [
+    "Rounded display values; see the executed notebook for the calculation code.",
+    "No chronological hold-out or separate-hotel validation.",
+    "Do not mix results from different environment/split runs."
+  ]
+}
