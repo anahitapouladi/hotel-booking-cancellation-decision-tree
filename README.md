@@ -148,7 +148,7 @@ Open [the notebook](notebooks/Hotel_Booking_Cancellation_Prediction_Decision_Tre
 
 **Outputs:** The notebook saves nine figures to `images/`. [`docs/run_metrics.json`](docs/run_metrics.json) is a **static snapshot of the saved run**; rerunning the notebook does not update it. Refresh the README, figures and snapshot together if you publish new results. The [reproducibility notes](docs/Validation_Report.md) describe the checks.
 
-**Reproducibility:** The saved notebook describes a Python 3.13 / scikit-learn 1.9.1 run. The 20 code cells were also independently re-executed using Python 3.13.5 and scikit-learn 1.8.0; the model metrics, split, selected settings and bootstrap interval matched the saved outputs. `requirements.txt` pins the environment used for that independent verification, not the original 1.9.1 environment. The dataset has many repeated predictor patterns, so different library versions or platforms can change the group split and selected settings. **Precision, recall, and the error trade-off can shift noticeably**, not just the last decimals. If you rerun the notebook, check that its narrative, figures, README and metrics snapshot still match the new outputs.
+**Reproducibility:** The saved results come from Python 3.13 and scikit-learn 1.9.1, and `requirements.txt` pins the core analysis-library versions used for that run (Jupyter and ipykernel are unpinned). The dataset has many repeated predictor patterns, so other library versions or platforms can shift the group split and the selected settings, and precision, recall and the error trade-off may move by more than the last decimals. If you rerun the notebook, check that its text, figures and `docs/run_metrics.json` still match the new outputs.
 
 ## Limitations
 
